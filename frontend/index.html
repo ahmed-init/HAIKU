@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI Multi-Agent Copilot</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    
+    <!-- Local Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon"><i data-lucide="shield-alert"></i></span>
+                    <span class="logo-text">AEGIS <span class="accent-text">AI</span></span>
+                </div>
+                <div class="server-status">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text">Connected</span>
+                </div>
+            </div>
+            
+            <nav class="agent-panel">
+                <h3>AVAILABLE AGENTS</h3>
+                <div class="agent-list">
+                    <div class="agent-item active-agent" id="agent-coding">
+                        <div class="agent-icon coding"><i data-lucide="code-2"></i></div>
+                        <div class="agent-info">
+                            <span class="agent-name">Coding Agent</span>
+                            <span class="agent-desc">Implements features & code</span>
+                        </div>
+                        <div class="pulse-indicator"></div>
+                    </div>
+                    
+                    <div class="agent-item active-agent" id="agent-debugging">
+                        <div class="agent-icon debugging"><i data-lucide="bug-play"></i></div>
+                        <div class="agent-info">
+                            <span class="agent-name">Debugging Agent</span>
+                            <span class="agent-desc">Fixes errors & refactors</span>
+                        </div>
+                        <div class="pulse-indicator"></div>
+                    </div>
+                    
+                    <div class="agent-item active-agent" id="agent-technical">
+                        <div class="agent-icon technical"><i data-lucide="git-branch"></i></div>
+                        <div class="agent-info">
+                            <span class="agent-name">Technical Agent</span>
+                            <span class="agent-desc">Architecture & design</span>
+                        </div>
+                        <div class="pulse-indicator"></div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Code Context Container -->
+            <div class="context-panel">
+                <div class="context-header" onclick="toggleContextPanel()">
+                    <span class="header-title"><i data-lucide="file-code-2"></i> Code Context</span>
+                    <span class="toggle-icon"><i data-lucide="chevron-down" id="context-chevron"></i></span>
+                </div>
+                <div class="context-content" id="context-body">
+                    <p class="context-help">Paste relevant code below to give the agents context for your query.</p>
+                    <textarea id="code-context-input" placeholder="Paste your code context here..."></textarea>
+                    <div class="context-status">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="use-context-checkbox" checked>
+                            <span class="checkmark"></span>
+                            Include in next message
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <p>GenAI Multi-Agent System v1.0</p>
+            </div>
+        </aside>
+        
+        <!-- Main Chat Area -->
+        <main class="chat-container">
+            <header class="chat-header">
+                <div class="current-model-info">
+                    <span class="model-badge">CLAUDE-HAIKU-4.5</span>
+                    <span class="router-badge">OpenRouter API</span>
+                </div>
+                <button class="clear-btn" onclick="clearChat()" title="Clear Chat">
+                    <i data-lucide="trash-2"></i> Clear Chat
+                </button>
+            </header>
+            
+            <!-- Messages Box -->
+            <div class="messages-viewport" id="chat-messages">
+                <!-- Welcome screen when there are no messages -->
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-glow"></div>
+                    <div class="welcome-icon"><i data-lucide="terminal"></i></div>
+                    <h1>GenAI Multi-Agent <span class="accent-text">Copilot</span></h1>
+                    <p class="subtitle">Ask coding, debugging, or system design questions. Claude will automatically route your request to the specialized agent.</p>
+                    
+                    <div class="prompt-grid">
+                        <div class="prompt-card" onclick="setPrompt('Write a clean and optimized implementation of Binary Search in Python with unit tests.')">
+                            <div class="card-icon coding"><i data-lucide="code-2"></i></div>
+                            <h3>Coding Task</h3>
+                            <p>"Write a clean and optimized implementation of Binary Search..."</p>
+                        </div>
+                        
+                        <div class="prompt-card" onclick="setPrompt('Analyze this error: ValueError: query must be an absolute path, but got RelativePath. Suggest a fix.')">
+                            <div class="card-icon debugging"><i data-lucide="bug-play"></i></div>
+                            <h3>Debugging Task</h3>
+                            <p>"Analyze this error: ValueError: query must be an absolute path..."</p>
+                        </div>
+                        
+                        <div class="prompt-card" onclick="setPrompt('How should I design a scalable notifications microservice that can handle 10,000 requests per second?')">
+                            <div class="card-icon technical"><i data-lucide="git-branch"></i></div>
+                            <h3>Architecture Task</h3>
+                            <p>"How should I design a scalable notifications microservice..."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Input Bar -->
+            <footer class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea id="user-input" placeholder="Type a message or paste a bug..." rows="1" onkeydown="handleKeyPress(event)"></textarea>
+                    
+                    <button id="send-button" onclick="sendMessage()">
+                        <span class="btn-text">Send</span>
+                        <i data-lucide="send"></i>
+                    </button>
+                </div>
+                <div class="input-footer-info">
+                    <span>Press Enter to send, Shift+Enter for new line.</span>
+                    <span id="active-context-indicator" class="hidden"><i data-lucide="paperclip"></i> Context attached</span>
+                </div>
+            </footer>
+        </main>
+    </div>
+    
+    <!-- Local JS -->
+    <script src="app.js"></script>
+</body>
+</html>
