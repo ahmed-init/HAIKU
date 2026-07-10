@@ -7,3 +7,5 @@ client = OpenRouter(
 )
 
 
+print("OPENROUTER_API_KEY:", OPENROUTER_API_KEY)
+print("KEY LENGTH:", len(OPENROUTER_API_KEY) if OPENROUTER_API_KEY else 0)

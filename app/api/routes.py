@@ -10,6 +10,7 @@ from app.llm.llm_client import client
 from app.tools.coding_tool import coding_tool
 from app.tools.debugging_tool import debugging_tool
 from app.tools.technical_tool import technical_tool
+from app.tools.default_tool import default_tool
 
 router = APIRouter(
     prefix="/api",
@@ -62,6 +63,18 @@ async def process_request(request: ProcessRequest):
                     "required": []
                 }
             }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "default_tool",
+                "description": "Provide a general description or overview of the given question",
+                "parameters": {
+                    "type": "object",
+                    "properties": {},
+                    "required": []
+                }
+            }
         }
     ]
 
@@ -93,12 +106,13 @@ async def process_request(request: ProcessRequest):
     tool_map = {
         "coding_tool": coding_tool,
         "debugging_tool": debugging_tool,
-        "technical_tool": technical_tool
+        "technical_tool": technical_tool,
+        "default_tool":default_tool
     }
 
     result = tool_map[function_name](
         request.user_message
-    )
+)
 
     return ProcessResponse(
         agent_selected=function_name,

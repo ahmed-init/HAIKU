@@ -237,6 +237,11 @@ function appendBotResponse(data) {
         agentClass = 'technical';
         agentIcon = 'git-branch';
     }
+    else{
+        agentDisplayName = 'General Agent';
+        agentClass = 'technical';
+        agentIcon = 'git-branch'; 
+    }
     
     meta.innerHTML = `
         <div class="bot-info">
